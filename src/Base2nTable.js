@@ -16,7 +16,7 @@ class Base2nTable {
 
         const codepointRanges = charsetRanges
             .match(/../gu)
-            .map(pair => [...pair].map(char => CharUtil.getCodepoint(char)));
+            .map(pair => [...pair].map(char => CharUtil.getCodepoint_(char)));
 
         const rangeSize = codepointRanges.map(([first, last]) => last - first + 1).reduce((a, b) => a + b, 0);
 
@@ -38,12 +38,12 @@ class Base2nTable {
         const rangeSpan = lastCodepoint - firstCodepoint + 1;
 
         return {
-            codepointRanges,
-            rangeSize,
+            codepointRanges_: codepointRanges,
+            rangeSize_: rangeSize,
 
-            firstCodepoint,
-            lastCodepoint,
-            rangeSpan
+            firstCodepoint_: firstCodepoint,
+            lastCodepoint_: lastCodepoint,
+            rangeSpan_: rangeSpan
         };
     }
 
@@ -51,12 +51,12 @@ class Base2nTable {
         const sortRanges = options.sortRanges ?? true;
 
         const {
-            codepointRanges,
-            rangeSize,
+            codepointRanges_: codepointRanges,
+            rangeSize_: rangeSize,
 
-            firstCodepoint,
-            lastCodepoint,
-            rangeSpan
+            firstCodepoint_: firstCodepoint,
+            lastCodepoint_: lastCodepoint,
+            rangeSpan_: rangeSpan
         } = this._getRanges(charsetRanges, sortRanges);
 
         const bitsPerChar = Math.log2(rangeSize);
@@ -133,44 +133,44 @@ class Base2nTable {
             averageLength = rangeCodeUnits / rangeSize;
 
         return new Base2nTable({
-            tableType,
+            tableType_: tableType,
 
-            charsetRanges,
-            codepointRanges,
-            rangeSize,
-            sortRanges,
+            charsetRanges_: charsetRanges,
+            codepointRange_: codepointRanges,
+            rangeSize_: rangeSize,
+            sortRanges_: sortRanges,
 
-            bitsPerChar,
-            needsExtraChar,
-            averageLength,
+            bitsPerChar_: bitsPerChar,
+            needsExtraChar_: needsExtraChar,
+            averageLength_: averageLength,
 
-            firstCodepoint,
-            lastCodepoint,
-            rangeSpan,
+            firstCodepoint_: firstCodepoint,
+            lastCodepoint_: lastCodepoint,
+            rangeSpan_: rangeSpan,
 
-            lookupE,
-            lookupD
+            lookupE_: lookupE,
+            lookupD_: lookupD
         });
     }
 
     constructor(data) {
-        this.type = data.tableType;
+        this.type = data.tableType_;
 
-        this.charsetRanges = data.charsetRanges;
-        this.codepointRanges = data.codepointRanges;
-        this.base = data.rangeSize;
-        this.sortedRanges = data.sortRanges;
+        this.charsetRanges = data.charsetRanges_;
+        this.codepointRanges = data.codepointRanges_;
+        this.base = data.rangeSize_;
+        this.sortedRanges = data.sortRanges_;
 
-        this.bitsPerChar = data.bitsPerChar;
-        this.needsExtraChar = data.needsExtraChar;
-        this.averageLength = data.averageLength;
+        this.bitsPerChar = data.bitsPerChar_;
+        this.needsExtraChar = data.needsExtraChar_;
+        this.averageLength = data.averageLength_;
 
-        this.firstCodepoint = data.firstCodepoint;
-        this.lastCodepoint = data.lastCodepoint;
-        this.rangeSpan = data.rangeSpan;
+        this.firstCodepoint = data.firstCodepoint_;
+        this.lastCodepoint = data.lastCodepoint_;
+        this.rangeSpan = data.rangeSpan_;
 
-        this.lookupE = data.lookupE;
-        this.lookupD = data.lookupD;
+        this.lookupE = data.lookupE_;
+        this.lookupD = data.lookupD_;
     }
 
     _approximateEncodedSize(data) {

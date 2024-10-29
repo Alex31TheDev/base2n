@@ -43,7 +43,7 @@ function decodeBase2n(str, table, options = {}) {
     let lastChar, lastIndex;
 
     if (table.needsExtraChar) {
-        ({ lastChar, lastIndex } = CharUtil.getLastChar(str));
+        ({ lastChar, lastIndex } = CharUtil.getLastChar_(str));
     }
 
     switch (table.type) {
@@ -52,7 +52,7 @@ function decodeBase2n(str, table, options = {}) {
                 const val = table.lookupD.get(char);
 
                 if (typeof val === "undefined") {
-                    const codepoint = CharUtil.getCodepoint(char);
+                    const codepoint = CharUtil.getCodepoint_(char);
                     throw new Base2nError(`Invalid character in encoded string: ${char} (${codepoint})`);
                 }
 
@@ -105,7 +105,7 @@ function decodeBase2n(str, table, options = {}) {
             }
 
             if (table.needsExtraChar) {
-                const lastCodepoint = CharUtil.getCodepoint(lastChar);
+                const lastCodepoint = CharUtil.getCodepoint_(lastChar);
                 leftoverBits = table.lookupD[lastCodepoint - table.firstCodepoint];
             }
 
