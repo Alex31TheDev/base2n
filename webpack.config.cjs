@@ -3,7 +3,38 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
-const inProduction = process.env.NODE_ENV == "production";
+const inProduction = process.env.NODE_ENV == "production",
+    distPath = path.resolve(__dirname, "dist");
+
+const filesToCopy = [
+    {
+        from: "./index.d.ts",
+        to: distPath
+    },
+    {
+        from: "./dist.package.json",
+        to: path.join(distPath, "package.json")
+    },
+    {
+        from: "./README.md",
+        to: distPath
+    },
+    {
+        from: "./LICENSE",
+        to: distPath
+    }
+];
+
+const terserOptions = {
+    mangle: {
+        properties: {
+            regex: /(^_)|(_$)/
+        }
+    },
+    compress: {
+        passes: 2
+    }
+};
 
 module.exports = {
     mode: inProduction ? "production" : "development",
@@ -11,7 +42,7 @@ module.exports = {
     target: "node",
     devtool: "source-map",
     output: {
-        path: path.join(__dirname, "dist"),
+        path: distPath,
         filename: "index.js",
         library: "base2n",
         libraryTarget: "umd"
@@ -27,39 +58,14 @@ module.exports = {
     },
     plugins: [
         new CopyWebpackPlugin({
-            patterns: [
-                {
-                    from: "./index.d.ts",
-                    to: path.resolve(__dirname, "dist")
-                },
-                {
-                    from: "./dist.package.json",
-                    to: path.resolve(__dirname, "dist", "package.json")
-                },
-                {
-                    from: "./README.md",
-                    to: path.resolve(__dirname, "dist")
-                },
-                {
-                    from: "./LICENSE",
-                    to: path.resolve(__dirname, "dist")
-                }
-            ]
+            patterns: filesToCopy
         })
     ],
     optimization: {
         minimizer: [
             new TerserPlugin({
-                terserOptions: {
-                    mangle: {
-                        properties: {
-                            regex: /(^_)|(_$)/
-                        }
-                    },
-                    compress: {
-                        passes: 2
-                    }
-                }
+                terserOptions,
+                extractComments: false
             })
         ]
     }
