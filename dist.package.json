@@ -1,0 +1,29 @@
+{
+    "name": "base2n",
+    "version": "0.1.0",
+    "description": "Base 2^n encoder",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "type": "commonjs",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Alex31TheDev/base2n.git"
+    },
+    "keywords": [
+        "base64",
+        "encoding",
+        "encoder",
+        "buffer",
+        "binary",
+        "string",
+        "text",
+        "unicode",
+        "purejs"
+    ],
+    "author": "Alex31TheDev",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Alex31TheDev/base2n/issues"
+    },
+    "homepage": "https://github.com/Alex31TheDev/base2n#readme"
+}
