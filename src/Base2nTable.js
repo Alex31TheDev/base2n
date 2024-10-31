@@ -4,6 +4,8 @@ import Base2nError from "./errors/Base2nError.js";
 import Base2nTableNames from "./enums/Base2nTableNames.js";
 import Base2nTableTypes from "./enums/Base2nTableTypes.js";
 
+const extraCharNotNeeded = [1, 2, 4, 8];
+
 class Base2nTable {
     static _getRanges(charsetRanges, sortRanges) {
         if (typeof charsetRanges !== "string") {
@@ -129,7 +131,7 @@ class Base2nTable {
             }
         }
 
-        const needsExtraChar = ![2, 8, 4].includes(bitsPerChar),
+        const needsExtraChar = !extraCharNotNeeded.includes(bitsPerChar),
             averageLength = rangeCodeUnits / rangeSize;
 
         return new Base2nTable({
