@@ -12,6 +12,13 @@ const defaultCharset = String.fromCodePoint(0x0021, 0xd7ff, 0xe000, 0xe000 - (0x
 
 const outEncoding = "utf8";
 
+const Util = {
+    round: (num, digits) => {
+        const exp = 10 ** digits;
+        return Math.round((num + Number.EPSILON) * exp) / exp;
+    }
+};
+
 class HashUtil {
     static hashData(data, hashType = "sha1") {
         const hash = crypto.createHash(hashType);
@@ -95,27 +102,34 @@ const t5 = performance.now(),
 const fileHash2 = HashUtil.hashData(decoded),
     successful = fileHash1 === fileHash2;
 
-if (!successful) {
-    const parsed = path.parse(outPath),
-        decodedPath = path.resolve(parsed.dir, "decoded" + path.extname);
-
-    fs.writeFileSync(decodedPath, decoded);
-}
-
 console.log("Original data hash:", fileHash1);
 console.log("Decoded data hash: ", fileHash2);
 
 if (successful) {
-    console.log("OK: Hashes match.");
+    console.log("OK: Hashes match.", "\n");
+
+    const originalSize = fileBytes.length,
+        encodedLength = [...encoded].length,
+        compressionRatio = Util.round((encodedLength / originalSize) * 100, 2);
+
+    console.log("Original data size: ", originalSize);
+    console.log("Encoded data length:", encodedLength);
+    console.log('"Compression" ratio:', compressionRatio + "%", "\n");
 } else {
-    console.error("ERROR: Hashes don't match.");
+    console.error("ERROR: Hashes don't match.", "\n");
+
+    const parsed = path.parse(outPath),
+        decodedPath = path.resolve(parsed.dir, "decoded" + path.extname);
+
+    fs.writeFileSync(decodedPath, decoded);
+    console.log("Wrote decoded data to:", decodedPath, "\n");
 }
 
 const d1 = Math.floor((t2 - t1) * 1000),
     d2 = Math.floor((t4 - t3) * 1000),
     d3 = Math.floor((t6 - t5) * 1000);
 
-console.log(`\nGenerating table took: ${d1.toLocaleString()} us
+console.log(`Generating table took: ${d1.toLocaleString()} us
 Encoding took: ${d2.toLocaleString()} us
 Decoding took: ${d3.toLocaleString()} us`);
 
