@@ -1,9 +1,9 @@
 import { describe, test } from "@jest/globals";
 
 import assert from "assert";
-import crypto from "crypto";
 
 import { Base2nTable, Base2nTableTypes, encodeBase2n, decodeBase2n } from "../index.js";
+import DataGenerator from "./DataGenerator.js";
 
 function generateTable(tableType, bpc, firstChar = 0x10000) {
     const rangeSize = 2 ** bpc,
@@ -11,24 +11,6 @@ function generateTable(tableType, bpc, firstChar = 0x10000) {
 
     return Base2nTable.generate(charRanges, { tableType });
 }
-
-const DataGenerator = {
-    zeroData: len => {
-        return new Uint8Array(len);
-    },
-
-    sequentialData: len => {
-        return new Uint8Array(
-            Array(len)
-                .fill()
-                .map((_, i) => i % 256)
-        );
-    },
-
-    randomData: len => {
-        return new Uint8Array(crypto.randomBytes(len).buffer);
-    }
-};
 
 function runTest(data, table, predictSize) {
     const errInfo = `Table Type: ${table.type}, BPC: ${table.bitsPerChar}, Predict Size: ${predictSize}, Length: ${data.length}`;
