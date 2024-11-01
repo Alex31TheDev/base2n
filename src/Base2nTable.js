@@ -81,13 +81,13 @@ class Base2nTable {
 
         switch (tableType) {
             case Base2nTableTypes.map:
-                lookupE = new Map();
-                lookupD = new Map();
+                if (generateEncode) lookupE = new Map();
+                if (generateDecode) lookupD = new Map();
 
                 break;
             case Base2nTableTypes.typedarray:
-                lookupE = new Uint32Array(rangeSpan).fill(-1);
-                lookupD = new Uint32Array(rangeSpan).fill(-1);
+                if (generateEncode) lookupE = new Uint32Array(rangeSpan).fill(-1);
+                if (generateDecode) lookupD = new Uint32Array(rangeSpan).fill(-1);
 
                 break;
             default:
