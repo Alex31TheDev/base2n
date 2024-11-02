@@ -4,11 +4,13 @@ const path = require("path");
 const defaultSplitCount = 20 * 1024,
     defaultEncoding = "utf8";
 
-function split(data, count) {
-    const chunks = [];
+function split(str, count) {
+    const chars = Array.from(str),
+        chunks = [];
 
-    for (let i = 0; i < data.length; i += count) {
-        chunks.push(data.slice(i, i + count));
+    for (let i = 0; i < chars.length; i += count) {
+        const chunk = chars.slice(i, i + count).join("");
+        chunks.push(chunk);
     }
 
     return chunks;
@@ -21,8 +23,7 @@ const Util = {
     }
 };
 
-const usage =
-    'Usage: node ./scripts/splitter.cjs filePath [outputDir = fileDir/split ("default")] [charSplitCount = 20 * 1024]';
+const usage = 'Usage: node splitter.cjs filePath [outputDir = fileDir/split ("default")] [charSplitCount = 20 * 1024]';
 
 const args = process.argv.slice(2);
 
