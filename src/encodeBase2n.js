@@ -95,7 +95,7 @@ function encodeBase2n(data, table, options = {}) {
             break;
         }
         default:
-            throw new Base2nError("Invalid table type");
+            throw new Base2nError("Invalid table type", table.type);
     }
 
     if (table.needsExtraChar) {

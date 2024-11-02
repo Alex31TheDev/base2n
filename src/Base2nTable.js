@@ -6,21 +6,51 @@ import Base2nTableTypes from "./enums/Base2nTableTypes.js";
 
 const extraCharNotNeeded = [1, 2, 4, 8];
 
+function hasOverlappingRanges(ranges) {
+    for (let i = 0; i < ranges.length; i++) {
+        for (let j = i + 1; j < ranges.length; j++) {
+            const [first_1, last_1] = ranges[i],
+                [first_2, last_2] = ranges[j];
+
+            if (first_1 <= last_2 && first_2 <= last_1) {
+                return [ranges[i], ranges[j]];
+            }
+        }
+    }
+
+    return false;
+}
+
 class Base2nTable {
     static _getRanges(charsetRanges, sortRanges) {
         if (typeof charsetRanges !== "string") {
             throw new Base2nError("Invalid charset ranges");
         }
 
-        if (charsetRanges.length === 0 || [...charsetRanges].length % 2 === 1) {
-            throw new Base2nError("Invalid charset ranges");
+        const charsetLength = [...charsetRanges].length;
+
+        if (charsetLength === 0 || charsetLength % 2 === 1) {
+            throw new Base2nError("Invalid charset ranges", charsetLength);
         }
 
         const codepointRanges = charsetRanges
             .match(/../gu)
             .map(pair => [...pair].map(char => CharUtil.getCodepoint_(char)));
 
-        const rangeSize = codepointRanges.map(([first, last]) => last - first + 1).reduce((a, b) => a + b, 0);
+        const overlap = hasOverlappingRanges(codepointRanges);
+
+        if (overlap) {
+            throw new Base2nError("Overlapping charset ranges", overlap);
+        }
+
+        const rangeSizes = codepointRanges.map(([first, last]) => last - first + 1),
+            rangeSize = rangeSizes.reduce((a, b, i) => {
+                if (b <= 0) {
+                    throw new Base2nError("Non-ascending charset ranges", codepointRanges[i]);
+                }
+
+                return a + b;
+            }, 0);
 
         let firstCodepoint, lastCodepoint;
 
@@ -41,6 +71,7 @@ class Base2nTable {
 
         return {
             codepointRanges_: codepointRanges,
+            rangeSizes_: rangeSizes,
             rangeSize_: rangeSize,
 
             firstCodepoint_: firstCodepoint,
@@ -54,6 +85,7 @@ class Base2nTable {
 
         const {
             codepointRanges_: codepointRanges,
+            rangeSizes_: rangeSizes,
             rangeSize_: rangeSize,
 
             firstCodepoint_: firstCodepoint,
@@ -64,7 +96,12 @@ class Base2nTable {
         const bitsPerChar = Math.log2(rangeSize);
 
         if (!Number.isInteger(bitsPerChar)) {
-            throw new Base2nError("Charset length must be a power of 2");
+            throw new Base2nError("Charset length must be a power of 2", {
+                ranges: codepointRanges,
+
+                sizes: rangeSizes,
+                size: rangeSize
+            });
         }
 
         let lookupE, lookupD;
@@ -74,7 +111,7 @@ class Base2nTable {
             generateDecode = generateTables.includes(Base2nTableNames.decode);
 
         if (!generateEncode && !generateDecode) {
-            throw new Base2nError("You must specify at least one type of table to be generated");
+            throw new Base2nError("You must specify at least one type of table to be generated", generateTables);
         }
 
         const tableType = options.tableType ?? Base2nTableTypes.map;
@@ -91,7 +128,7 @@ class Base2nTable {
 
                 break;
             default:
-                throw new Base2nError("Invalid table type: " + tableType);
+                throw new Base2nError("Invalid table type: " + tableType, tableType);
         }
 
         let val = 0,
@@ -135,12 +172,12 @@ class Base2nTable {
             averageLength = rangeCodeUnits / rangeSize;
 
         return new Base2nTable({
-            tableType_: tableType,
+            type_: tableType,
 
             charsetRanges_: charsetRanges,
-            codepointRange_: codepointRanges,
-            rangeSize_: rangeSize,
-            sortRanges_: sortRanges,
+            codepointRanges_: codepointRanges,
+            base_: rangeSize,
+            sortedRanges_: sortRanges,
 
             bitsPerChar_: bitsPerChar,
             needsExtraChar_: needsExtraChar,
@@ -156,12 +193,12 @@ class Base2nTable {
     }
 
     constructor(data) {
-        this.type = data.tableType_;
+        this.type = data.type_;
 
         this.charsetRanges = data.charsetRanges_;
         this.codepointRanges = data.codepointRanges_;
-        this.base = data.rangeSize_;
-        this.sortedRanges = data.sortRanges_;
+        this.base = data.base_;
+        this.sortedRanges = data.sortedRanges_;
 
         this.bitsPerChar = data.bitsPerChar_;
         this.needsExtraChar = data.needsExtraChar_;

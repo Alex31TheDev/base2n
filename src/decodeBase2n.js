@@ -53,7 +53,7 @@ function decodeBase2n(str, table, options = {}) {
 
                 if (typeof val === "undefined") {
                     const codepoint = CharUtil.getCodepoint_(char);
-                    throw new Base2nError(`Invalid character in encoded string: ${char} (${codepoint})`);
+                    throw new Base2nError(`Invalid character in encoded string: ${char} (${codepoint})`, codepoint);
                 }
 
                 buffer = (buffer << table.bitsPerChar) | val;
@@ -87,7 +87,7 @@ function decodeBase2n(str, table, options = {}) {
 
                 if (typeof val === "undefined") {
                     const char = String.fromCharCode(codepoint);
-                    throw new Base2nError(`Invalid character in encoded string: ${char} (${codepoint})`);
+                    throw new Base2nError(`Invalid character in encoded string: ${char} (${codepoint})`, codepoint);
                 }
 
                 buffer = (buffer << table.bitsPerChar) | val;
@@ -113,7 +113,7 @@ function decodeBase2n(str, table, options = {}) {
         }
 
         default:
-            throw new Base2nError("Invalid table type");
+            throw new Base2nError("Invalid table type", table.type);
     }
 
     let zeros = 0;

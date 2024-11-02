@@ -34,11 +34,11 @@ export class Base2nTable {
     static generate(charsetRanges: string, options?: Base2nTableOptions): Base2nTable;
     private constructor();
 
-    tableType: tableType;
+    type: tableType;
 
     charsetRanges: string;
     codepointRanges: codepointRanges;
-    rangeSize: number;
+    base: number;
     sortedRanges: boolean;
 
     bitsPerChar: number;
