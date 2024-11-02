@@ -10,7 +10,7 @@ const defaultCharset = String.fromCodePoint(0x0021, 0xd7ff, 0xe000, 0xe000 - (0x
     tableType = Base2nTableTypes.buffer,
     predictSize = true;
 
-const outEncoding = "utf8";
+const outputEncoding = "utf8";
 
 const Util = {
     round: (num, digits) => {
@@ -72,15 +72,17 @@ class HashUtil {
 }
 
 const usage =
-        'Usage: node ./examples/encode.js filePath [outPath = fileDir/fileName_encoded.txt ("default")] [charset = 20 bpc] [sortRanges = true]',
+        'Usage: node ./examples/encode.js filePath [outputPath = fileDir/fileName_encoded.txt ("default")] [charset = 20 bpc] [sortRanges = true]',
     charsetHelp = `Charsets are defined by ranges starting with a character and ending with another. For example, the charset "09af" contains the ranges 0-9 and a-f, inclusive on both ends.
 To include a single character, type it twice. For example, the charset containing "a" and "c" is written as "aacc"`;
 
-const filePath = process.argv[2],
-    charset = process.argv[4] ?? defaultCharset,
-    sortRanges = Util.parseBool(process.argv[5]) ?? true;
+const args = process.argv.slice(2);
 
-let outPath = process.argv[3] ?? "default";
+const filePath = args[0],
+    charset = args[2] ?? defaultCharset,
+    sortRanges = Util.parseBool(args[3]) ?? true;
+
+let outputPath = args[1] ?? "default";
 
 if (typeof filePath === "undefined") {
     console.error("ERROR: No file path provided.", "\n");
@@ -89,11 +91,11 @@ if (typeof filePath === "undefined") {
     process.exit(1);
 }
 
-if (outPath === "default") {
+if (outputPath === "default") {
     const parsed = path.parse(filePath);
-    outPath = path.resolve(parsed.dir, parsed.name + "_encoded.txt");
+    outputPath = path.resolve(parsed.dir, parsed.name + "_encoded.txt");
 } else {
-    outPath = path.resolve(outPath);
+    outputPath = path.resolve(outputPath);
 }
 
 let fileBytes;
@@ -189,14 +191,14 @@ try {
 
 const encodedHash1 = HashUtil.hashData(encoded);
 
-fs.writeFileSync(outPath, encoded, {
-    encoding: outEncoding
+fs.writeFileSync(outputPath, encoded, {
+    encoding: outputEncoding
 });
 
-console.log("Wrote encoded data to:", outPath, "\n");
+console.log("Wrote encoded data to:", outputPath, "\n");
 
-const encodedRead = fs.readFileSync(outPath, {
-        encoding: outEncoding
+const encodedRead = fs.readFileSync(outputPath, {
+        encoding: outputEncoding
     }),
     encodedHash2 = HashUtil.hashData(encodedRead);
 
@@ -240,7 +242,7 @@ if (successful) {
 } else {
     console.error("ERROR: Hashes don't match.", "\n");
 
-    const parsed = path.parse(outPath),
+    const parsed = path.parse(outputPath),
         decodedPath = path.resolve(parsed.dir, "decoded" + path.extname);
 
     fs.writeFileSync(decodedPath, decoded);
