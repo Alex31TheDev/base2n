@@ -74,7 +74,7 @@ class HashUtil {
 const usage =
         'Usage: node ./examples/encode.js filePath [outputPath = fileDir/fileName_encoded.txt ("default")] [charset = 20 bpc] [sortRanges = true]',
     charsetHelp = `Charsets are defined by ranges starting with a character and ending with another. For example, the charset "09af" contains the ranges 0-9 and a-f, inclusive on both ends.
-To include a single character, type it twice. For example, the charset containing "a" and "c" is written as "aacc"`;
+To include a single character, type it twice. For example, the charset containing "a" and "c" is written as "aacc". Charsets must include at least 2 characters.`;
 
 const args = process.argv.slice(2);
 
@@ -158,6 +158,14 @@ try {
 
                 console.error(`ERROR: Charset size (${size}) must be a power of 2.`);
                 console.log("Ranges:", rangesFormat);
+
+                console.log("\n" + charsetHelp);
+                break;
+            }
+            case "Invalid range size": {
+                const base = err.ref - 1;
+
+                console.error(`ERROR: Invalid base: ${base}.`);
 
                 console.log("\n" + charsetHelp);
                 break;

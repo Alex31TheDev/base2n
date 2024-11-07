@@ -52,6 +52,10 @@ class Base2nTable {
                 return a + b;
             }, 0);
 
+        if (rangeSize <= 1) {
+            throw new Base2nError("Invalid range size", rangeSize);
+        }
+
         let firstCodepoint, lastCodepoint;
 
         if (sortRanges) {
