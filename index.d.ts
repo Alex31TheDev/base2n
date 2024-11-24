@@ -1,6 +1,7 @@
 export enum Base2nTableNames {
     encode = "encode",
-    decode = "decode"
+    decode = "decode",
+    cpp = "cpp"
 }
 
 export enum Base2nTableTypes {
@@ -51,6 +52,8 @@ export class Base2nTable {
 
     lookupE: lookupE;
     lookupD: lookupD;
+
+    getEquivalentCode(): string;
 }
 
 interface EncoderOptions {

@@ -7,7 +7,7 @@ import crypto from "crypto";
 import { Base2nTable, Base2nTableTypes, encodeBase2n, decodeBase2n } from "../index.js";
 
 const defaultCharset = String.fromCodePoint(0x0021, 0xd7ff, 0xe000, 0xe000 - (0xd7ff - 0x0021 + 1) + 2 ** 20 - 1),
-    tableType = Base2nTableTypes.buffer,
+    tableType = Base2nTableTypes.typedarray,
     predictSize = true;
 
 const outputEncoding = "utf8";
