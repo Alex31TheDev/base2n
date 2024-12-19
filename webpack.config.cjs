@@ -27,12 +27,14 @@ const filesToCopy = [
 
 const terserOptions = {
     mangle: {
+        keep_classnames: /Error$/,
         properties: {
             regex: /(^_)|(_$)/
         }
     },
     compress: {
-        passes: 2
+        passes: 2,
+        keep_classnames: /Error$/
     }
 };
 
@@ -45,7 +47,7 @@ module.exports = {
         path: distPath,
         filename: "index.js",
         library: "base2n",
-        libraryTarget: "umd"
+        libraryTarget: "commonjs2"
     },
     module: {
         rules: [
