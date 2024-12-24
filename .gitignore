@@ -130,7 +130,7 @@ dist
 .pnp.*
 
 # build
-dist/
+/dist/
 
 # encoded
-encoded/
+/encoded/
