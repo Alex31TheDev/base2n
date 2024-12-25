@@ -25,49 +25,60 @@ const Util = {
 
 const usage = 'Usage: node splitter.cjs filePath [outputDir = fileDir/split ("default")] [charSplitCount = 20 * 1024]';
 
-const args = process.argv.slice(2);
+function parseArgs() {
+    const args = process.argv.slice(2);
 
-const filePath = args[0];
+    const filePath = args[0];
 
-let outputDir = args[1] ?? "default",
-    charSplitCount = args[2] ?? defaultSplitCount;
+    let outputDir = args[1] ?? "default",
+        charSplitCount = args[2] ?? defaultSplitCount;
 
-if (typeof filePath === "undefined") {
-    console.error("ERROR: No file path provided.", "\n");
-    console.log(usage);
-
-    process.exit(1);
-}
-
-if (typeof charSplitCount === "string") {
-    const charSplitCountStr = charSplitCount;
-    charSplitCount = parseInt(charSplitCountStr, 10);
-
-    if (isNaN(charSplitCount)) {
-        console.error("ERROR: Invalid split count:", charSplitCountStr, "\n");
+    if (typeof filePath === "undefined") {
+        console.error("ERROR: No file path provided.", "\n");
         console.log(usage);
 
         process.exit(1);
     }
+
+    if (typeof charSplitCount === "string") {
+        const charSplitCountStr = charSplitCount;
+        charSplitCount = parseInt(charSplitCountStr, 10);
+
+        if (isNaN(charSplitCount)) {
+            console.error("ERROR: Invalid split count:", charSplitCountStr, "\n");
+            console.log(usage);
+
+            process.exit(1);
+        }
+    }
+
+    const inputDir = path.dirname(filePath),
+        inputExt = path.extname(filePath),
+        inputName = path.basename(filePath, inputExt);
+
+    if (outputDir === "default") {
+        outputDir = path.resolve(inputDir, "split");
+    } else {
+        outputDir = path.resolve(outputDir);
+    }
+
+    return {
+        filePath,
+        inputExt,
+        inputName,
+        outputDir,
+
+        charSplitCount
+    };
 }
 
-const inputDir = path.dirname(filePath),
-    inputExt = path.extname(filePath),
-    inputName = path.basename(filePath, inputExt);
-
-if (outputDir === "default") {
-    outputDir = path.resolve(inputDir, "split");
-} else {
-    outputDir = path.resolve(outputDir);
-}
-
-if (fs.existsSync(outputDir)) {
-    const outputExp = new RegExp(Util.escapeRegex(inputName) + "_part\\d+?" + Util.escapeRegex(inputExt)),
-        files = fs.readdirSync(outputDir).filter(name => outputExp.test(name));
+function deleteExistingFiles(args) {
+    const outputExp = new RegExp(Util.escapeRegex(args.inputName) + "_part\\d+?" + Util.escapeRegex(args.inputExt)),
+        files = fs.readdirSync(args.outputDir).filter(name => outputExp.test(name));
 
     try {
         files.forEach(name => {
-            const filePath = path.join(outputDir, name);
+            const filePath = path.join(args.outputDir, name);
             fs.unlinkSync(filePath);
         });
     } catch (err) {
@@ -76,43 +87,70 @@ if (fs.existsSync(outputDir)) {
     }
 
     console.log("Deleted existing files.", "\n");
-} else {
+}
+
+function createOutputDir(args) {
     try {
-        fs.mkdirSync(outputDir, { recursive: true });
+        fs.mkdirSync(args.outputDir, { recursive: true });
     } catch (err) {
-        console.error(`ERROR: Occured while trying to create directory ${outputDir}:`, err);
+        console.error(`ERROR: Occured while trying to create directory ${args.outputDir}:`, err);
         process.exit(1);
     }
 
     console.log("Created output directory.", "\n");
 }
 
-let data;
-
-try {
-    data = fs.readFileSync(filePath, {
-        encoding: defaultEncoding
-    });
-} catch (err) {
-    console.error(`ERROR: Occured while reading file ${filePath}:`, err);
-    process.exit(1);
-}
-
-const chunks = split(data, charSplitCount);
-
-chunks.forEach((chunk, index) => {
-    const outputPath = path.join(outputDir, `${inputName}_part${index + 1}` + inputExt);
+function readInputFile(args) {
+    let data;
 
     try {
-        fs.writeFileSync(outputPath, chunk, {
+        data = fs.readFileSync(args.filePath, {
             encoding: defaultEncoding
         });
-
-        console.log(`Written: ${outputPath}`);
     } catch (err) {
-        console.error(`ERROR: Occured while writing file ${outputPath}:`, err);
+        console.error(`ERROR: Occured while reading file ${args.filePath}:`, err);
         process.exit(1);
     }
-});
 
-console.log("\nFinished splitting file.");
+    return data;
+}
+
+function writeChunks(data, args) {
+    function getPartName(num) {
+        return `${args.inputName}_part${num + 1}` + args.inputExt;
+    }
+
+    const chunks = split(data, args.charSplitCount);
+
+    chunks.forEach((chunk, num) => {
+        const outputPath = path.join(args.outputDir, getPartName(num));
+
+        try {
+            fs.writeFileSync(outputPath, chunk, {
+                encoding: defaultEncoding
+            });
+
+            console.log(`Written: ${outputPath}`);
+        } catch (err) {
+            console.error(`ERROR: Occured while writing file ${outputPath}:`, err);
+            process.exit(1);
+        }
+    });
+}
+
+function main() {
+    const args = parseArgs();
+
+    if (fs.existsSync(args.outputDir)) {
+        deleteExistingFiles(args);
+    } else {
+        createOutputDir(args);
+    }
+
+    const data = readInputFile(args);
+    writeChunks(data, args);
+
+    console.log("\nFinished splitting file.");
+}
+
+main();
