@@ -42,9 +42,9 @@ function parseArgs() {
 
     if (typeof charSplitCount === "string") {
         const charSplitCountStr = charSplitCount;
-        charSplitCount = parseInt(charSplitCountStr, 10);
+        charSplitCount = Number.parseInt(charSplitCountStr, 10);
 
-        if (isNaN(charSplitCount)) {
+        if (Number.isNaN(charSplitCount)) {
             console.error("ERROR: Invalid split count:", charSplitCountStr, "\n");
             console.log(usage);
 
