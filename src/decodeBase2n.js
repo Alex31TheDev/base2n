@@ -3,6 +3,24 @@ import Base2nError from "./errors/Base2nError.js";
 
 import Base2nTableTypes from "./enums/Base2nTableTypes.js";
 
+function invalidCharacterError(char, pos) {
+    const msg = `Invalid character ${pos ? `at position ${pos}` : "in encoded string"}: `;
+
+    let codepoint;
+
+    if (typeof char === "string") {
+        codepoint = CharUtil.getCodepoint_(char);
+    } else {
+        codepoint = char;
+        char = String.fromCharCode(codepoint);
+    }
+
+    throw new Base2nError(`${msg}${char} (${codepoint})`, {
+        codepoint,
+        pos
+    });
+}
+
 function decodeBase2n(str, table, options = {}) {
     if (typeof table.lookupD === "undefined") {
         throw new Base2nError("Can't decode, lookup table wasn't generated");
@@ -52,8 +70,7 @@ function decodeBase2n(str, table, options = {}) {
                 const val = table.lookupD.get(char);
 
                 if (typeof val === "undefined") {
-                    const codepoint = CharUtil.getCodepoint_(char);
-                    throw new Base2nError(`Invalid character in encoded string: ${char} (${codepoint})`, codepoint);
+                    invalidCharacterError(char);
                 }
 
                 buffer = (buffer << table.bitsPerChar) | val;
@@ -86,8 +103,7 @@ function decodeBase2n(str, table, options = {}) {
                 const val = table.lookupD[codepoint - table.firstCodepoint];
 
                 if (typeof val === "undefined") {
-                    const char = String.fromCharCode(codepoint);
-                    throw new Base2nError(`Invalid character in encoded string: ${char} (${codepoint})`, codepoint);
+                    invalidCharacterError(codepoint, i);
                 }
 
                 buffer = (buffer << table.bitsPerChar) | val;

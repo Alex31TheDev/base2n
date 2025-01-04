@@ -3,7 +3,7 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
-const inProduction = process.env.NODE_ENV == "production",
+const inProduction = process.env.NODE_ENV === "production",
     distPath = path.resolve(__dirname, "dist");
 
 const filesToCopy = [
