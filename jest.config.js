@@ -2,7 +2,7 @@ const config = {
     testEnvironment: "node",
     verbose: true,
     transform: {},
-    roots: ["test"],
+    roots: ["./test"],
     testPathIgnorePatterns: ["/node_modules/"],
     moduleFileExtensions: ["js", "json", "node"],
     reporters: ["default"]

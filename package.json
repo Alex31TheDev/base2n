@@ -9,7 +9,7 @@
         "prepare": "npm run clean && npm run build-prod",
         "pack:dist": "npm run prepare && cd dist && npm pack && move *.tgz ../",
         "publish:dist": "npm run prepare && cd dist && npm publish",
-        "test": "node --experimental-vm-modules --no-warnings=ExperimentalWarning node_modules/jest/bin/jest.js --config ./jest.config.js",
+        "test": "node --experimental-vm-modules --no-warnings=ExperimentalWarning ./node_modules/jest/bin/jest.js --config ./jest.config.js",
         "lint": "eslint . --config .eslintrc.json --ignore-path .gitignore --ext .js,.ts,.cjs",
         "format": "prettier --config .prettierrc --ignore-path .prettierignore --write **/*.{js,ts,cjs,json}"
     },
