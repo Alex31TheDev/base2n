@@ -119,7 +119,8 @@ function readInputFile(args) {
         if (err.code === "ENOENT") {
             console.error("ERROR: Couldn't find the file at path: " + args.filePath);
         } else {
-            console.error(`ERROR: Occured while reading file ${args.filePath}:`, err);
+            console.error(`ERROR: Occured while reading file ${args.filePath}:`);
+            console.error(err);
         }
 
         process.exit(1);
