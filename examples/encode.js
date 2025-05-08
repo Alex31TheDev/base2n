@@ -76,8 +76,15 @@ const usage =
     charsetHelp = `Charsets are defined by ranges starting with a character and ending with another. For example, the charset "09af" contains the ranges 0-9 and a-f, inclusive on both ends.
 To include a single character, type it twice. For example, the charset containing "a" and "c" is written as "aacc". Charsets must include at least 2 characters.`;
 
+const helpArgs = ["-h", "--help"];
+
 function parseArgs() {
     const args = process.argv.slice(2);
+
+    if (args.length < 1 || helpArgs.some(help => args.includes(help))) {
+        console.log(usage);
+        process.exit(0);
+    }
 
     let filePath = args[0],
         charset = args[2] ?? defaultCharset,
@@ -119,7 +126,8 @@ function readInputFile(args) {
         if (err.code === "ENOENT") {
             console.error("ERROR: Couldn't find the file at path: " + args.filePath);
         } else {
-            console.error(`ERROR: Occured while reading file ${args.filePath}:`, err);
+            console.error(`ERROR: Occured while reading file ${args.filePath}:`);
+            console.error(err);
         }
 
         process.exit(1);
@@ -156,7 +164,9 @@ function createTable(args) {
                     const range = err.ref,
                         sortedRange = range.sort((a, b) => a - b);
 
-                    const errMsg = `Range ${Util.formatRange(range)} must be in ascending order: ${Util.formatRange(sortedRange)}`;
+                    const errMsg = `Range ${Util.formatRange(range)} must be in ascending order: ${Util.formatRange(
+                        sortedRange
+                    )}`;
                     console.error("ERROR: Invalid charset.", errMsg);
 
                     console.log("\n" + charsetHelp);

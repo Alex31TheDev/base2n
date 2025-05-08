@@ -23,10 +23,17 @@ const Util = {
     }
 };
 
-const usage = 'Usage: node splitter.cjs filePath [outputDir = fileDir/split ("default")] [charSplitCount = 20 * 1024]';
+const usage =
+    'Usage: node ./scripts/splitter.cjs filePath [outputDir = fileDir/split ("default")] [charSplitCount = 20 * 1024]';
+const helpArgs = ["-h", "--help"];
 
 function parseArgs() {
     const args = process.argv.slice(2);
+
+    if (args.length < 1 || helpArgs.some(help => args.includes(help))) {
+        console.log(usage);
+        process.exit(0);
+    }
 
     const filePath = args[0];
 
@@ -82,7 +89,9 @@ function deleteExistingFiles(args) {
             fs.unlinkSync(filePath);
         });
     } catch (err) {
-        console.error(`ERROR: Occured while trying to delete existing files:`, err);
+        console.error(`ERROR: Occured while trying to delete existing files:`);
+        console.error(err);
+
         process.exit(1);
     }
 
@@ -93,7 +102,9 @@ function createOutputDir(args) {
     try {
         fs.mkdirSync(args.outputDir, { recursive: true });
     } catch (err) {
-        console.error(`ERROR: Occured while trying to create directory ${args.outputDir}:`, err);
+        console.error(`ERROR: Occured while trying to create directory ${args.outputDir}:`);
+        console.error(err);
+
         process.exit(1);
     }
 
@@ -108,7 +119,9 @@ function readInputFile(args) {
             encoding: defaultEncoding
         });
     } catch (err) {
-        console.error(`ERROR: Occured while reading file ${args.filePath}:`, err);
+        console.error(`ERROR: Occured while reading file ${args.filePath}:`);
+        console.error(err);
+
         process.exit(1);
     }
 
@@ -132,7 +145,9 @@ function writeChunks(data, args) {
 
             console.log(`Written: ${outputPath}`);
         } catch (err) {
-            console.error(`ERROR: Occured while writing file ${outputPath}:`, err);
+            console.error(`ERROR: Occured while writing file ${outputPath}:`);
+            console.error(err);
+
             process.exit(1);
         }
     });
